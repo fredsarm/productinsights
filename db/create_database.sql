@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS products.brands
 (
     brand_id serial NOT NULL,
     brand_name text NOT NULL,
-    origin smallint NOT NULL,
+    country_id_fk smallint NOT NULL,
     PRIMARY KEY (brand_id),
     UNIQUE (brand_name)
 );
@@ -56,9 +56,39 @@ CREATE TABLE IF NOT EXISTS products.versions
     PRIMARY KEY (version_id)
 );
 
+CREATE TABLE IF NOT EXISTS products.countries
+(
+    country_id serial NOT NULL,
+    country_name text NOT NULL,
+    PRIMARY KEY (country_id)
+);
+
+CREATE TABLE IF NOT EXISTS products.colors_ref
+(
+    color_id serial,
+    color_name text NOT NULL,
+    PRIMARY KEY (color_id)
+);
+
+CREATE TABLE IF NOT EXISTS products.available_colors
+(
+    available_color_id serial NOT NULL,
+    available_color_name text NOT NULL,
+    version_id_fk integer NOT NULL,
+    color_id_fk integer NOT NULL,
+    PRIMARY KEY (available_color_id)
+);
+
 ALTER TABLE IF EXISTS products.models
     ADD FOREIGN KEY (brand_id_fk)
     REFERENCES products.brands (brand_id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+
+ALTER TABLE IF EXISTS products.brands
+    ADD FOREIGN KEY (country_id_fk)
+    REFERENCES products.countries (country_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
@@ -73,8 +103,8 @@ ALTER TABLE IF EXISTS products.attribute_values
 ALTER TABLE IF EXISTS products.version_attributes
     ADD FOREIGN KEY (attribute_value_id_fk)
     REFERENCES products.attribute_values (attribute_value_id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE;
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
 
 
 ALTER TABLE IF EXISTS products.version_attributes
@@ -87,6 +117,20 @@ ALTER TABLE IF EXISTS products.version_attributes
 ALTER TABLE IF EXISTS products.versions
     ADD FOREIGN KEY (model_id_fk)
     REFERENCES products.models (model_id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+
+ALTER TABLE IF EXISTS products.available_colors
+    ADD FOREIGN KEY (version_id_fk)
+    REFERENCES products.versions (version_id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+
+ALTER TABLE IF EXISTS products.available_colors
+    ADD FOREIGN KEY (color_id_fk)
+    REFERENCES products.colors_ref (color_id) MATCH SIMPLE
     ON UPDATE CASCADE
     ON DELETE CASCADE;
 
